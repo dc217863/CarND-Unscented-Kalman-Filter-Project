@@ -64,6 +64,12 @@ public:
   ///* Augmented state dimension
   int n_aug_;
 
+  ///* radar measurement dimension
+  int n_z_radar;
+
+  ///* radar measurement dimension
+  int n_z_laser;
+
   ///* Sigma point spreading parameter
   double lambda_;
 
@@ -82,7 +88,7 @@ public:
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
-  void ProcessMeasurement(MeasurementPackage meas_package);
+  void ProcessMeasurement(const MeasurementPackage &meas_package);
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
@@ -90,6 +96,25 @@ public:
    * @param delta_t Time between k and k+1 in s
    */
   void Prediction(double delta_t);
+
+  /**
+   * generates augmented sigma points based on lambda
+   * @param Xsig_aug Matrix of augmented sigma points
+   */
+  void AugmentedSigmaPoints(MatrixXd* Xsig_aug);
+
+  /**
+   * predicts state of all sigma points
+   * @param Xsig_pred Matrix of predicted sigma points
+   * @param Xsig_aug Matrix of sigma points
+   * @param delta_t time difference in sec
+   */
+  void SigmaPointPrediction(const MatrixXd& Xsig_aug, double delta_t);
+
+  /**
+   * predicts mean and covariance based on sigma points
+   */
+  void PredictMeanAndCovariance();
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
@@ -102,6 +127,20 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /**
+   * convert predicted state into measurement space
+   * Z_pred mean predicted measurement
+   * S measurement covariance matrix
+   */
+  void PredictRadarMeasurement(VectorXd* Z_pred, MatrixXd* S, MatrixXd* Zsig);
+
+  /**
+   * update state and covariance matrices based on measurement
+   * meas_package the measurement at k+1
+   * Z_pred mean predicted measurement
+   */
+  void UpdateState(MeasurementPackage meas_package, const VectorXd& Z_pred, const MatrixXd& S, const MatrixXd& Zsig);
 };
 
 #endif /* UKF_H */
