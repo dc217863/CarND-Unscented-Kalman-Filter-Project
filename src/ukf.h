@@ -130,17 +130,17 @@ public:
 
   /**
    * convert predicted state into measurement space
-   * Z_pred mean predicted measurement
+   * Zpred mean predicted measurement
    * S measurement covariance matrix
    */
-  void PredictRadarMeasurement(VectorXd* Z_pred, MatrixXd* S, MatrixXd* Zsig);
+  void PredictRadarMeasurement(VectorXd* Zpred, MatrixXd* S, MatrixXd* Zsig);
 
   /**
    * update state and covariance matrices based on measurement
    * meas_package the measurement at k+1
-   * Z_pred mean predicted measurement
+   * Zpred mean predicted measurement
    */
-  void UpdateState(MeasurementPackage meas_package, const VectorXd& Z_pred, const MatrixXd& S, const MatrixXd& Zsig);
+  void UpdateState(MeasurementPackage meas_package, const VectorXd& Zpred, const MatrixXd& S, const MatrixXd& Zsig);
 };
 
 #endif /* UKF_H */
