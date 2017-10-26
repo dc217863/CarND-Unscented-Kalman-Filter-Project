@@ -90,9 +90,9 @@ void UKF::ProcessMeasurement(const MeasurementPackage &meas_package) {
 
         P_ << 1, 0, 0, 0, 0,
               0, 1, 0, 0, 0,
-              0, 0, 1000, 0, 0,
-              0, 0, 0, 1000, 0,
-              0, 0, 0, 0, 1000;
+              0, 0, 1, 0, 0,
+              0, 0, 0, 1, 0,
+              0, 0, 0, 0, 1;
 
         if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR) {
             std::cout << "UKF PM init radar" << std::endl;
@@ -108,6 +108,7 @@ void UKF::ProcessMeasurement(const MeasurementPackage &meas_package) {
         time_us_ = meas_package.timestamp_;
         Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
         std::cout << "UKF PM init over" << std::endl;
+        return;
     }
     float delta_t = 
     (meas_package.timestamp_ - time_us_) / 1000000.0; // in seconds
@@ -116,7 +117,7 @@ void UKF::ProcessMeasurement(const MeasurementPackage &meas_package) {
     std::cout << "2x_: " << x_ << std::endl;
     std::cout << "2P_: " << P_ << std::endl;
     if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR) {
-        UpdateRadar(meas_package);
+        // UpdateRadar(meas_package);
     } else if (meas_package.sensor_type_ == MeasurementPackage::SensorType::LASER) {
         UpdateLidar(meas_package);
     }
@@ -390,6 +391,7 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd* Z_
     //measurement covariance matrix S
     auto S = MatrixXd(n_z_radar,n_z_radar);
 
+    //transform sigma points into measurement space
     for(int i=0; i<2*n_aug_+1; i++) {
         double px = Xsig_pred_(0,i);
         double py = Xsig_pred_(1,i);
@@ -415,12 +417,14 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd* Z_
         }
         weights_(i) = w_i;
         
+        //mean predicted measurement
         z_pred = z_pred + (w_i * Z_sig.col(i));
     }
     
     S.fill(0.0);
     for (int i=0; i<2*n_aug_+1; i++) {
         MatrixXd z_pred_diff = Z_sig.col(i) - z_pred;
+        //measurement covariance matrix S
         S = S + weights_(i) * z_pred_diff * z_pred_diff.transpose();
     }
     
@@ -440,10 +444,7 @@ void UKF::UpdateState(MeasurementPackage meas_package, const VectorXd& Z_pred, c
     std::cout << "UKF UpdateState" << std::endl;
     // measurement at k+1
     VectorXd z = VectorXd(n_z_radar);
-    //TODO: check correctness
-    z(0) = meas_package.raw_measurements_(0);
-    z(1) = meas_package.raw_measurements_(1);
-    z(2) = meas_package.raw_measurements_(2);
+    z = meas_package.raw_measurements_;
 
     //create matrix for cross correlation Tc
     auto Tc = MatrixXd(n_x_, n_z_radar);
