@@ -73,6 +73,12 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* current NIS for radar
+  double NIS_radar_;
+
+  ///* current NIS for laser
+  double NIS_laser_;
+
 
   /**
    * Constructor
@@ -133,14 +139,14 @@ public:
    * Zpred mean predicted measurement
    * S measurement covariance matrix
    */
-  void PredictRadarMeasurement(VectorXd* Zpred, MatrixXd* S, MatrixXd* Zsig);
+//   void PredictRadarMeasurement(VectorXd* Zpred, MatrixXd* S, MatrixXd* Zsig);
 
   /**
    * update state and covariance matrices based on measurement
    * meas_package the measurement at k+1
    * Zpred mean predicted measurement
    */
-  void UpdateState(MeasurementPackage meas_package, const VectorXd& Zpred, const MatrixXd& S, const MatrixXd& Zsig);
+//   void UpdateState(MeasurementPackage meas_package, const VectorXd& Zpred, const MatrixXd& S, const MatrixXd& Zsig);
 };
 
 #endif /* UKF_H */
